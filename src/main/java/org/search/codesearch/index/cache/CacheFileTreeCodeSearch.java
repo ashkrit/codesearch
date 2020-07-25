@@ -30,23 +30,32 @@ public class CacheFileTreeCodeSearch implements Search {
     private final SuffixTree<Long> fileTreeCache = new ConcurrentSuffixTree<>(new DefaultCharArrayNodeFactory());
 
     public CacheFileTreeCodeSearch(List<String> rootPaths) {
+
         this.rootPath = rootPaths;
         this.matchers = Arrays.asList(matchFileName(), new FileContentMatcher());
 
+
+        logger.info("Building index");
         LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(this::record, Arrays.asList((x, y) -> true), null, Integer.MAX_VALUE);
         long start = System.currentTimeMillis();
         try {
             Stream<Path> paths = rootPath.stream().map(Paths::get);
             paths.forEach(path -> walk(visitor, path));
+            logger.info("Total files indexed {} ", fileTreeCache.size());
         } finally {
             long total = System.currentTimeMillis() - start;
             logger.info("Took {} ms to create index", total);
-            logger.info("Folder visited {} , files visited {} , files matched {} ", visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed());
+            logger.info("Folder visited {} , files visited {} , files matched {} , bytes read {} kb ",
+                    visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed(), visitor.bytesRead() / 1024);
         }
 
     }
 
     private void record(Path p) {
+        long s = fileTreeCache.size();
+        if (s % 10_000 == 0) {
+            logger.info("Indexed {} files", s);
+        }
         fileTreeCache.put(p.toFile().getAbsolutePath(), p.toFile().length());
     }
 
@@ -64,7 +73,8 @@ public class CacheFileTreeCodeSearch implements Search {
         } finally {
             long total = System.currentTimeMillis() - start;
             logger.info("Took {} ms for search term {}", total, pattern);
-            logger.info("files visited {} , files matched {} ", processor.filesVisited(), processor.filesProcessed());
+            logger.info("files visited {} , files matched {} , bytes read {} KB ",
+                    processor.filesVisited(), processor.filesProcessed(), processor.bytesRead() / 1024);
         }
     }
 

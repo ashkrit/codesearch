@@ -16,6 +16,7 @@ public class CachedFileTreeProcessor {
     private final int limit;
     private final AtomicLong filesVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
+    private final AtomicLong bytesRead = new AtomicLong();
 
     public CachedFileTreeProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
         this.consumer = consumer;
@@ -31,8 +32,8 @@ public class CachedFileTreeProcessor {
             if (filesProcessed.get() >= this.limit) {
                 return;
             }
-
             Path fileToCheck = Paths.get(file.toString());
+            bytesRead.addAndGet(fileToCheck.toFile().length());
             Optional<ContentMatcher> match = matchers.stream()
                     .filter(x -> x.match(fileToCheck, pattern))
                     .findFirst();
@@ -49,5 +50,9 @@ public class CachedFileTreeProcessor {
 
     public long filesVisited() {
         return filesVisited.get();
+    }
+
+    public long bytesRead() {
+        return bytesRead.get();
     }
 }

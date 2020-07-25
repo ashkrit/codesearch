@@ -29,6 +29,8 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
     private final AtomicLong filesVisited = new AtomicLong();
     private final AtomicLong folderVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
+    private final AtomicLong bytesRead = new AtomicLong();
+
 
     public LiveFileTreeProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
         this.consumer = consumer;
@@ -58,6 +60,7 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
             return SKIP_SIBLINGS;
         }
 
+        bytesRead.addAndGet(file.toFile().length());
         Optional<ContentMatcher> match = matchers.stream()
                 .filter(x -> x.match(file, pattern))
                 .findFirst();
@@ -93,5 +96,9 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
 
     public long filesProcessed() {
         return filesProcessed.longValue();
+    }
+
+    public long bytesRead() {
+        return bytesRead.get();
     }
 }
