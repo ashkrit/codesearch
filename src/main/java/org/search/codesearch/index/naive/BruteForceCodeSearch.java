@@ -35,7 +35,7 @@ public class BruteForceCodeSearch implements Search {
     @Override
     public void match(String pattern, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        FileProcessor visitor = new FileProcessor(consumer, this.matchers, pattern.toLowerCase(), limit);
+        LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(consumer, this.matchers, pattern.toLowerCase(), limit);
         try {
             Stream<Path> paths = rootPath.stream().map(Paths::get);
             paths.forEach(path -> walk(visitor, path));
@@ -46,7 +46,7 @@ public class BruteForceCodeSearch implements Search {
         }
     }
 
-    private void walk(FileProcessor visitor, Path path) {
+    private void walk(LiveFileTreeProcessor visitor, Path path) {
         try {
             walkFileTree(path, visitor);
         } catch (IOException e) {

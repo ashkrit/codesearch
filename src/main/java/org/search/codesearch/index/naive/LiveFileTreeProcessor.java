@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 
 import static java.nio.file.FileVisitResult.*;
 
-public class FileProcessor extends SimpleFileVisitor<Path> {
+public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(LiveFileTreeProcessor.class);
 
     private final Consumer<Path> consumer;
     private final List<ContentMatcher> matchers;
@@ -30,7 +30,7 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
     private final AtomicLong folderVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
 
-    public FileProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
+    public LiveFileTreeProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
         this.consumer = consumer;
         this.matchers = matchers;
         this.pattern = pattern;

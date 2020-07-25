@@ -2,13 +2,14 @@ package org.search.codesearch;
 
 import org.search.codesearch.args.ArgsParser;
 import org.search.codesearch.index.naive.BruteForceCodeSearch;
+import org.search.codesearch.index.cache.CacheFileTreeCodeSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Scanner;
 
 
 public class App {
@@ -23,9 +24,17 @@ public class App {
         logger.info("Searching {} for term {}", rootPath, term);
 
         List<String> locations = Arrays.asList(rootPath.split(";"));
+        List<Search> searchAlgos = Arrays.asList(new BruteForceCodeSearch(locations), new CacheFileTreeCodeSearch(locations));
 
-        Search search = new BruteForceCodeSearch(locations);
-        search.match(term.toLowerCase(), file -> logger.info("Found {}", file), 1000);
+        logger.info("Start search now ....");
+
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNext()) {
+            String p = scanner.nextLine();
+            for (Search search : searchAlgos) {
+                search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000);
+            }
+        }
     }
 
 }
