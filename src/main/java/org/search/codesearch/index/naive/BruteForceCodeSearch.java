@@ -40,7 +40,7 @@ public class BruteForceCodeSearch implements Search {
         } finally {
             long total = System.currentTimeMillis() - start;
             logger.info("Took {} ms for search term {}", total, pattern);
-            logger.info("Folder visited {} , files visited {} , files processed {} ", visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed());
+            logger.info("Folder visited {} , files visited {} , files matched {} ", visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed());
         }
     }
 

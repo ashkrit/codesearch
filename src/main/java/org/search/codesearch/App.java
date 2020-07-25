@@ -22,13 +22,10 @@ public class App {
         logger.info("Searching {} for term {}", rootPath, term);
 
         List<String> locations = Arrays.asList(rootPath.split(";"));
-        Search search = new BruteForceCodeSearch(locations);
-        search.match(term, file -> {
-                    logger.info("Found {}", file);
-                },
-                100000);
 
-        //Charset.availableCharsets().forEach((k, v) -> System.out.println(k + ":" + v));
+        Search search = new BruteForceCodeSearch(locations);
+
+        search.match(term, file -> logger.info("Found {}", file), 10);
     }
 
 }
