@@ -5,6 +5,8 @@ import org.search.codesearch.index.naive.BruteForceCodeSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -19,7 +21,8 @@ public class App {
         String term = params.get("term");
         logger.info("Searching {} for term {}", rootPath, term);
 
-        Search search = new BruteForceCodeSearch(rootPath);
+        List<String> locations = Arrays.asList(rootPath.split(";"));
+        Search search = new BruteForceCodeSearch(locations);
         search.match(term, file -> logger.info("Found {}", file));
     }
 
