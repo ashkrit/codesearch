@@ -2,6 +2,7 @@ package org.search.codesearch.index.naive;
 
 import org.search.codesearch.Search;
 import org.search.codesearch.index.ContentMatcher;
+import org.search.codesearch.index.FileContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public class BruteForceCodeSearch implements Search {
 
     public BruteForceCodeSearch(List<String> rootPaths) {
         this.rootPath = rootPaths;
-        this.matchers = Arrays.asList(matchFileName());
+        this.matchers = Arrays.asList(matchFileName(), new FileContentMatcher());
     }
 
     private ContentMatcher matchFileName() {
