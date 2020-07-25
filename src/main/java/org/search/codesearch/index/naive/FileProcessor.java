@@ -25,14 +25,16 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
     private final Consumer<Path> consumer;
     private final List<ContentMatcher> matchers;
     private final String pattern;
+    private final int limit;
     private final AtomicLong filesVisited = new AtomicLong();
     private final AtomicLong folderVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
 
-    public FileProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern) {
+    public FileProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
         this.consumer = consumer;
         this.matchers = matchers;
         this.pattern = pattern;
+        this.limit = limit;
     }
 
     @Override
@@ -55,11 +57,12 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
         if (FileTypes.isCompiledFile(file.toFile())) {
             return FileVisitResult.SKIP_SIBLINGS;
         }
-        filesProcessed.incrementAndGet();
         Optional<ContentMatcher> match = matchers.stream().filter(x -> x.match(file, pattern)).findFirst();
-        match.ifPresent($ -> consumer.accept(file));
-        return CONTINUE;
-
+        match.ifPresent($ -> {
+            consumer.accept(file);
+            filesProcessed.incrementAndGet();
+        });
+        return filesProcessed() < this.limit ? CONTINUE : FileVisitResult.TERMINATE;
     }
 
     @Override

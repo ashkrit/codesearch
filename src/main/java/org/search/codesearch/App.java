@@ -5,7 +5,6 @@ import org.search.codesearch.index.naive.BruteForceCodeSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +25,8 @@ public class App {
         Search search = new BruteForceCodeSearch(locations);
         search.match(term, file -> {
                     logger.info("Found {}", file);
-                }
-        );
+                },
+                100);
 
         //Charset.availableCharsets().forEach((k, v) -> System.out.println(k + ":" + v));
     }

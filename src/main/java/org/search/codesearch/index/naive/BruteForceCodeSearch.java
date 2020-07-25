@@ -32,9 +32,9 @@ public class BruteForceCodeSearch implements Search {
     }
 
     @Override
-    public void match(String pattern, Consumer<Path> consumer) {
+    public void match(String pattern, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        FileProcessor visitor = new FileProcessor(consumer, this.matchers, pattern);
+        FileProcessor visitor = new FileProcessor(consumer, this.matchers, pattern, limit);
         try {
             rootPath.stream().map(Paths::get).forEach(path -> walk(visitor, path));
         } finally {
