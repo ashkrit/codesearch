@@ -15,12 +15,11 @@ public class App {
     public static void main(String[] args) {
         Map<String, String> params = ArgsParser.cmdParams(args);
 
-        String rootPath = params.get("s");
+        String rootPath = params.get("source");
         logger.info("Searching {}", rootPath);
 
         Search search = new BruteForceCodeSearch(rootPath);
         search.match("benchmark", file -> logger.info("Found {}", file));
-
     }
 
 }

@@ -30,7 +30,7 @@ public class BruteForceCodeSearch implements Search {
         try {
             FileProcessor visitor = new FileProcessor(consumer);
             walkFileTree(Paths.get(rootPath), visitor);
-            logger.info("Folder visited {} , folder visited {} ", visitor.folderVisited(), visitor.filesVisited());
+            logger.info("Folder visited {} , files visited {} , files processed {} ", visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -41,6 +41,7 @@ public class BruteForceCodeSearch implements Search {
         private final Consumer<Path> consumer;
         private final AtomicLong filesVisited = new AtomicLong();
         private final AtomicLong folderVisited = new AtomicLong();
+        private final AtomicLong filesProcessed = new AtomicLong();
 
         public FileProcessor(Consumer<Path> consumer) {
             this.consumer = consumer;
@@ -63,8 +64,14 @@ public class BruteForceCodeSearch implements Search {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
             filesVisited.incrementAndGet();
+            if (FileTypes.isCompiledFile(file.toFile())) {
+                return FileVisitResult.SKIP_SIBLINGS;
+            }
+
+            filesProcessed.incrementAndGet();
             consumer.accept(file);
             return CONTINUE;
+
         }
 
         @Override
@@ -87,6 +94,10 @@ public class BruteForceCodeSearch implements Search {
 
         public long folderVisited() {
             return folderVisited.longValue();
+        }
+
+        public long filesProcessed() {
+            return filesProcessed.longValue();
         }
     }
 }
