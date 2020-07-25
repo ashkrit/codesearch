@@ -16,10 +16,11 @@ public class App {
         Map<String, String> params = ArgsParser.cmdParams(args);
 
         String rootPath = params.get("source");
-        logger.info("Searching {}", rootPath);
+        String term = params.get("term");
+        logger.info("Searching {} for term {}", rootPath, term);
 
         Search search = new BruteForceCodeSearch(rootPath);
-        search.match("benchmark", file -> logger.info("Found {}", file));
+        search.match(term, file -> logger.info("Found {}", file));
     }
 
 }
