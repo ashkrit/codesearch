@@ -1,4 +1,4 @@
-package org.search.codesearch.index;
+package org.search.codesearch.index.matcher;
 
 import java.nio.file.Path;
 

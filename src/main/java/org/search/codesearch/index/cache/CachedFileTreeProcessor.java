@@ -1,9 +1,10 @@
 package org.search.codesearch.index.cache;
 
-import org.search.codesearch.index.ContentMatcher;
+import org.search.codesearch.index.matcher.ContentMatcher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,15 +33,7 @@ public class CachedFileTreeProcessor {
             if (filesProcessed.get() >= this.limit) {
                 return;
             }
-            Path fileToCheck = Paths.get(file.toString());
-            bytesRead.addAndGet(fileToCheck.toFile().length());
-            Optional<ContentMatcher> match = matchers.stream()
-                    .filter(x -> x.match(fileToCheck, pattern))
-                    .findFirst();
-            match.ifPresent($ -> {
-                consumer.accept(fileToCheck);
-                filesProcessed.incrementAndGet();
-            });
+            searchInFile(file.toString());
         });
     }
 
@@ -54,5 +47,38 @@ public class CachedFileTreeProcessor {
 
     public long bytesRead() {
         return bytesRead.get();
+    }
+
+    public void matchFromLocation(Iterator<String> files) {
+        while (files.hasNext()) {
+            filesVisited.incrementAndGet();
+
+            if (filesProcessed.get() >= this.limit) {
+                return;
+            }
+
+            searchInFile(files.next());
+        }
+
+    }
+
+    public void searchFileContent(String f) {
+        filesVisited.incrementAndGet();
+        if (filesProcessed.get() >= this.limit) {
+            return;
+        }
+        searchInFile(f);
+    }
+
+    private void searchInFile(String next) {
+        Path fileToCheck = Paths.get(next);
+        bytesRead.addAndGet(fileToCheck.toFile().length());
+        Optional<ContentMatcher> match = matchers.stream()
+                .filter(x -> x.match(fileToCheck, pattern))
+                .findFirst();
+        match.ifPresent($ -> {
+            consumer.accept(fileToCheck);
+            filesProcessed.incrementAndGet();
+        });
     }
 }

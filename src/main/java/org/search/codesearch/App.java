@@ -1,11 +1,13 @@
 package org.search.codesearch;
 
 import org.search.codesearch.args.ArgsParser;
+import org.search.codesearch.index.cache.DiskCacheFileTreeCodeSearch;
+import org.search.codesearch.index.matcher.InMemoryFileContentMatcher;
 import org.search.codesearch.index.naive.BruteForceCodeSearch;
-import org.search.codesearch.index.cache.CacheFileTreeCodeSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,17 +26,24 @@ public class App {
         logger.info("Searching {} for term {}", rootPath, term);
 
         List<String> locations = Arrays.asList(rootPath.split(";"));
-        List<Search> searchAlgos = Arrays.asList(new BruteForceCodeSearch(locations), new CacheFileTreeCodeSearch(locations));
+        List<Search> searchAlgo = Arrays.asList(
+                new DiskCacheFileTreeCodeSearch(locations, InMemoryFileContentMatcher.create(), new File("\\tmp\\db\\file.db")),
+                new BruteForceCodeSearch(locations)
+        );
 
         logger.info("Start search now ....");
+
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNext()) {
             String p = scanner.nextLine();
-            for (Search search : searchAlgos) {
+            if (p.trim().isEmpty()) continue;
+
+            for (Search search : searchAlgo) {
                 search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000);
             }
         }
+
     }
 
 }

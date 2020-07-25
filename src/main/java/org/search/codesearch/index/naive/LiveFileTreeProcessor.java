@@ -1,7 +1,7 @@
 package org.search.codesearch.index.naive;
 
-import org.search.codesearch.index.ContentMatcher;
 import org.search.codesearch.index.FileTypes;
+import org.search.codesearch.index.matcher.ContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

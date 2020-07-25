@@ -1,40 +1,44 @@
 package org.search.codesearch.index.cache;
 
-import com.googlecode.concurrenttrees.radix.node.concrete.DefaultCharArrayNodeFactory;
-import com.googlecode.concurrenttrees.suffix.ConcurrentSuffixTree;
-import com.googlecode.concurrenttrees.suffix.SuffixTree;
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
 import org.search.codesearch.Search;
-import org.search.codesearch.index.ContentMatcher;
-import org.search.codesearch.index.FileContentMatcher;
+import org.search.codesearch.index.matcher.ContentMatcher;
 import org.search.codesearch.index.naive.LiveFileTreeProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.nio.file.Files.walkFileTree;
 
-public class CacheFileTreeCodeSearch implements Search {
+public class DiskCacheFileTreeCodeSearch implements Search {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheFileTreeCodeSearch.class);
+    private static final Logger logger = LoggerFactory.getLogger(DiskCacheFileTreeCodeSearch.class);
     private final List<ContentMatcher> matchers;
     private final List<String> rootPath;
-    private final SuffixTree<Long> fileTreeCache = new ConcurrentSuffixTree<>(new DefaultCharArrayNodeFactory());
+    private final MVMap<String, Long> fileTreeCache;
+    private final MVStore store;
 
-    public CacheFileTreeCodeSearch(List<String> rootPaths) {
+    public DiskCacheFileTreeCodeSearch(List<String> rootPaths, ContentMatcher fileContentMatcher, File cache) {
 
         this.rootPath = rootPaths;
-        this.matchers = Arrays.asList(matchFileName(), new FileContentMatcher());
+        this.matchers = Arrays.asList(matchFileName(), fileContentMatcher);
+        this.store = MVStore.open(cache.getAbsolutePath());
+        this.fileTreeCache = this.store.openMap("filecache");
+        buildFileTreeIndex();
+    }
 
-
+    private void buildFileTreeIndex() {
         logger.info("Building index");
         LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(this::record, Arrays.asList((x, y) -> true), null, Integer.MAX_VALUE);
         long start = System.currentTimeMillis();
@@ -48,7 +52,6 @@ public class CacheFileTreeCodeSearch implements Search {
             logger.info("Folder visited {} , files visited {} , files matched {} , bytes read {} kb ",
                     visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed(), visitor.bytesRead() / 1024);
         }
-
     }
 
     private void record(Path p) {
@@ -68,8 +71,9 @@ public class CacheFileTreeCodeSearch implements Search {
         long start = System.currentTimeMillis();
         CachedFileTreeProcessor processor = new CachedFileTreeProcessor(consumer, matchers, pattern, limit);
         try {
-            Stream<Path> paths = rootPath.stream().map(Paths::get);
-            paths.parallel().forEach(p -> processor.matchFromLocation(filesToScan(p)));
+            fileTreeCache.keyList().parallelStream().forEach(f -> processor.searchFileContent(f));
+            //processor.matchFromLocation(fileTreeCache.keyIterator(fileTreeCache.firstKey()));
+            //paths.parallel().forEach(p -> processor.matchFromLocation(filesToScan(p)));
         } finally {
             long total = System.currentTimeMillis() - start;
             logger.info("Took {} ms for search term {}", total, pattern);
@@ -78,8 +82,8 @@ public class CacheFileTreeCodeSearch implements Search {
         }
     }
 
-    private Iterable<CharSequence> filesToScan(Path p) {
-        return fileTreeCache.getKeysContaining(p.toFile().getAbsolutePath());
+    private Iterator<String> filesToScan(Path p) {
+        return fileTreeCache.keyIterator(p.toFile().getAbsolutePath());
     }
 
     private void walk(LiveFileTreeProcessor visitor, Path path) {

@@ -1,4 +1,4 @@
-package org.search.codesearch.index;
+package org.search.codesearch.index.matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class FileContentMatcher implements ContentMatcher {
-    private static final Logger logger = LoggerFactory.getLogger(FileContentMatcher.class);
-    private List<String> textExt = Arrays.asList(".java", ".properties", ".c", ".cpp");
+public class OnDemandFileContentMatcher implements ContentMatcher {
+    private static final Logger logger = LoggerFactory.getLogger(OnDemandFileContentMatcher.class);
+    private final List<String> textExt = Arrays.asList(".java", ".properties", ".c", ".cpp");
 
     @Override
     public boolean match(Path p, String pattern) {
