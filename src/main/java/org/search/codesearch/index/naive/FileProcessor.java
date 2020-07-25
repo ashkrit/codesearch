@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.*;
 
 public class FileProcessor extends SimpleFileVisitor<Path> {
 
@@ -41,9 +41,9 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         File file = dir.toFile();
         if (skipProcessing(file)) {
-            return FileVisitResult.SKIP_SUBTREE;
+            return SKIP_SUBTREE;
         } else {
-            return FileVisitResult.CONTINUE;
+            return CONTINUE;
         }
     }
 
@@ -55,8 +55,9 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
         filesVisited.incrementAndGet();
         if (FileTypes.isCompiledFile(file.toFile())) {
-            return FileVisitResult.SKIP_SIBLINGS;
+            return SKIP_SIBLINGS;
         }
+
         Optional<ContentMatcher> match = matchers.stream().filter(x -> x.match(file, pattern)).findFirst();
         match.ifPresent($ -> {
             consumer.accept(file);

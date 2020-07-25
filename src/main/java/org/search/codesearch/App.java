@@ -26,7 +26,7 @@ public class App {
         search.match(term, file -> {
                     logger.info("Found {}", file);
                 },
-                100);
+                100000);
 
         //Charset.availableCharsets().forEach((k, v) -> System.out.println(k + ":" + v));
     }
