@@ -1,7 +1,7 @@
 package org.search.codesearch;
 
 import org.search.codesearch.args.ArgsParser;
-import org.search.codesearch.index.BruteForceCodeSearch;
+import org.search.codesearch.index.naive.BruteForceCodeSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
