@@ -9,21 +9,28 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.Files.walkFileTree;
 
 public class BruteForceCodeSearch implements Search {
     private static final Logger logger = LoggerFactory.getLogger(BruteForceCodeSearch.class);
-
+    private final List<ContentMatcher> matchers;
     private final String rootPath;
 
     public BruteForceCodeSearch(String rootPath) {
         this.rootPath = rootPath;
+        this.matchers = Arrays.asList(matchFileName());
     }
 
+    private ContentMatcher matchFileName() {
+        return (p, t) -> p.toFile().getName().toLowerCase().contains(t);
+    }
 
     @Override
     public void match(String pattern, Consumer<Path> consumer) {
