@@ -58,11 +58,15 @@ public class FileProcessor extends SimpleFileVisitor<Path> {
             return SKIP_SIBLINGS;
         }
 
-        Optional<ContentMatcher> match = matchers.stream().filter(x -> x.match(file, pattern)).findFirst();
+        Optional<ContentMatcher> match = matchers.stream()
+                .filter(x -> x.match(file, pattern))
+                .findFirst();
+
         match.ifPresent($ -> {
             consumer.accept(file);
             filesProcessed.incrementAndGet();
         });
+
         return filesProcessed() < this.limit ? CONTINUE : FileVisitResult.TERMINATE;
     }
 

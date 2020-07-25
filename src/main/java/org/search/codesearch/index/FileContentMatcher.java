@@ -17,7 +17,7 @@ public class FileContentMatcher implements ContentMatcher {
     @Override
     public boolean match(Path p, String pattern) {
         try {
-            if (isText(p)) {
+            if (isTextFile(p)) {
                 Optional<String> match = Files.lines(p)
                         .map(String::toLowerCase)
                         .filter(line -> line.contains(pattern))
@@ -30,7 +30,7 @@ public class FileContentMatcher implements ContentMatcher {
         return false;
     }
 
-    private boolean isText(Path p) {
+    private boolean isTextFile(Path p) {
         File f = p.toFile();
         for (int index = 0; index < textExt.size(); index++) {
             if (f.getName().endsWith(textExt.get(index))) {

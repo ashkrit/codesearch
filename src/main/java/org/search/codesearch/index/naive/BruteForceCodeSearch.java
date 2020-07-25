@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static java.nio.file.Files.walkFileTree;
 
@@ -34,9 +35,10 @@ public class BruteForceCodeSearch implements Search {
     @Override
     public void match(String pattern, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        FileProcessor visitor = new FileProcessor(consumer, this.matchers, pattern, limit);
+        FileProcessor visitor = new FileProcessor(consumer, this.matchers, pattern.toLowerCase(), limit);
         try {
-            rootPath.stream().map(Paths::get).forEach(path -> walk(visitor, path));
+            Stream<Path> paths = rootPath.stream().map(Paths::get);
+            paths.forEach(path -> walk(visitor, path));
         } finally {
             long total = System.currentTimeMillis() - start;
             logger.info("Took {} ms for search term {}", total, pattern);

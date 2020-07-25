@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 public class App {
@@ -24,8 +25,7 @@ public class App {
         List<String> locations = Arrays.asList(rootPath.split(";"));
 
         Search search = new BruteForceCodeSearch(locations);
-
-        search.match(term, file -> logger.info("Found {}", file), 10);
+        search.match(term.toLowerCase(), file -> logger.info("Found {}", file), 1000);
     }
 
 }
