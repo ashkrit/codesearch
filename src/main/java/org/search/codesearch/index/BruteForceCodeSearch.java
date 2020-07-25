@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -50,7 +49,6 @@ public class BruteForceCodeSearch implements Search {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             File file = dir.toFile();
-
             if (skipProcessing(file)) {
                 return FileVisitResult.SKIP_SUBTREE;
             } else {
@@ -59,11 +57,7 @@ public class BruteForceCodeSearch implements Search {
         }
 
         private boolean skipProcessing(File file) {
-            return file.isHidden() || isGitFolder(file);
-        }
-
-        private boolean isGitFolder(File file) {
-            return file.isDirectory() && file.getName().equals(".git");
+            return file.isHidden() || FileTypes.isGitFolder(file);
         }
 
         @Override
