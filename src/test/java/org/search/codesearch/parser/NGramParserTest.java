@@ -13,7 +13,7 @@ public class NGramParserTest {
 
     @Test
     public void generate_no_grams() {
-        NGramGenerator g = new NGramGenerator(0);
+        NGramGenerator g = new NGramGenerator(0, " ");
         List<String> result = new ArrayList<>();
 
         g.generate("this is simple text", (String s) -> result.add(s));
@@ -24,7 +24,7 @@ public class NGramParserTest {
 
     @Test
     public void generate_3_grams() {
-        NGramGenerator g = new NGramGenerator(3);
+        NGramGenerator g = new NGramGenerator(3, " ");
 
         List<String> result = new ArrayList<>();
         g.generate("this is simple text", s -> result.add(s));
@@ -33,8 +33,8 @@ public class NGramParserTest {
     }
 
     @Test
-    public void generate_too_small_grams() {
-        NGramGenerator g = new NGramGenerator(1);
+    public void failed_when_grams_are_too_small() {
+        NGramGenerator g = new NGramGenerator(1, " ");
         assertThrows(IllegalArgumentException.class, () -> g.generate("this is simple text", s -> {
         }));
     }

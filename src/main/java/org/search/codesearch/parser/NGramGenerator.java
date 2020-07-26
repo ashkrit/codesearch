@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 public class NGramGenerator {
 
     private final int noOfGrams;
+    private final String token;
 
-    public NGramGenerator(int noOfGrams) {
+    public NGramGenerator(int noOfGrams, String token) {
         this.noOfGrams = noOfGrams;
+        this.token = token;
     }
 
     public void generate(String text, Consumer<String> consumer) {
@@ -15,28 +17,32 @@ public class NGramGenerator {
             for (String v : extractParts(text)) {
                 consumer.accept(v);
             }
+            return;
         }
 
         if (noOfGrams < 3)
             throw new IllegalArgumentException("Too small");
 
-
-        if (noOfGrams == 3) {
-            String[] words = extractParts(text);
-            for (String word : words) {
-                if (nGramRequired(noOfGrams, word)) {
-                    for (int index = 0; index + noOfGrams <= word.length(); index++) {
-                        consumer.accept(word.substring(index, index + noOfGrams));
-                    }
-                } else {
-                    consumer.accept(word);
-                }
+        String[] words = extractParts(text);
+        for (String word : words) {
+            if (nGramRequired(noOfGrams, word)) {
+                generateNGrams(consumer, word);
+            } else {
+                consumer.accept(word);
             }
+        }
+
+    }
+
+    private void generateNGrams(Consumer<String> consumer, String word) {
+        int length = word.length();
+        for (int index = 0; index + noOfGrams <= length; index++) {
+            consumer.accept(word.substring(index, index + noOfGrams));
         }
     }
 
     private String[] extractParts(String text) {
-        return text.split(" ");
+        return text.split(token);
     }
 
     private boolean nGramRequired(int noOfGrams, String word) {
