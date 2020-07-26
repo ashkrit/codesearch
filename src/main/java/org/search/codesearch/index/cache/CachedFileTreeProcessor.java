@@ -4,7 +4,6 @@ import org.search.codesearch.index.matcher.ContentMatcher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,26 +14,16 @@ public class CachedFileTreeProcessor {
     private final List<ContentMatcher> matchers;
     private final String pattern;
     private final int limit;
+
     private final AtomicLong filesVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
     private final AtomicLong bytesRead = new AtomicLong();
 
-    public CachedFileTreeProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
+    public CachedFileTreeProcessor(List<ContentMatcher> matchers, Consumer<Path> consumer, String pattern, int limit) {
         this.consumer = consumer;
         this.matchers = matchers;
         this.pattern = pattern;
         this.limit = limit;
-    }
-
-    public void matchFromLocation(Iterable<CharSequence> files) {
-        files.forEach(file -> {
-            filesVisited.incrementAndGet();
-
-            if (filesProcessed.get() >= this.limit) {
-                return;
-            }
-            searchInFile(file.toString());
-        });
     }
 
     public long filesProcessed() {
@@ -49,36 +38,34 @@ public class CachedFileTreeProcessor {
         return bytesRead.get();
     }
 
-    public void matchFromLocation(Iterator<String> files) {
-        while (files.hasNext()) {
-            filesVisited.incrementAndGet();
 
-            if (filesProcessed.get() >= this.limit) {
-                return;
-            }
-
-            searchInFile(files.next());
-        }
-
-    }
-
-    public void searchFileContent(String f) {
+    public void search(String f) {
         filesVisited.incrementAndGet();
-        if (filesProcessed.get() >= this.limit) {
+        if (limitReached()) {
             return;
         }
-        searchInFile(f);
+        match(f);
     }
 
-    private void searchInFile(String next) {
-        Path fileToCheck = Paths.get(next);
-        bytesRead.addAndGet(fileToCheck.toFile().length());
+    private boolean limitReached() {
+        return filesProcessed.get() >= this.limit;
+    }
+
+    private void match(String filePath) {
+        Path fileToCheck = Paths.get(filePath);
+        updateReadBytes(fileToCheck);
+
         Optional<ContentMatcher> match = matchers.stream()
                 .filter(x -> x.match(fileToCheck, pattern))
                 .findFirst();
+
         match.ifPresent($ -> {
             consumer.accept(fileToCheck);
             filesProcessed.incrementAndGet();
         });
+    }
+
+    private void updateReadBytes(Path fileToCheck) {
+        bytesRead.addAndGet(fileToCheck.toFile().length());
     }
 }

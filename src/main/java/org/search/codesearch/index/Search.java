@@ -1,4 +1,4 @@
-package org.search.codesearch;
+package org.search.codesearch.index;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;

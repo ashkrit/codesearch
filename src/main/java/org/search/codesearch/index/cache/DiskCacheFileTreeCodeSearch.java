@@ -2,7 +2,7 @@ package org.search.codesearch.index.cache;
 
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
-import org.search.codesearch.Search;
+import org.search.codesearch.index.Search;
 import org.search.codesearch.index.matcher.ContentMatcher;
 import org.search.codesearch.index.naive.LiveFileTreeProcessor;
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -39,19 +38,21 @@ public class DiskCacheFileTreeCodeSearch implements Search {
     }
 
     private void buildFileTreeIndex() {
+
         logger.info("Building index");
         LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(this::record, Arrays.asList((x, y) -> true), null, Integer.MAX_VALUE);
         long start = System.currentTimeMillis();
-        try {
-            Stream<Path> paths = rootPath.stream().map(Paths::get);
-            paths.forEach(path -> walk(visitor, path));
-            logger.info("Total files indexed {} ", fileTreeCache.size());
-        } finally {
-            long total = System.currentTimeMillis() - start;
-            logger.info("Took {} ms to create index", total);
-            logger.info("Folder visited {} , files visited {} , files matched {} , bytes read {} kb ",
-                    visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed(), visitor.bytesRead() / 1024);
-        }
+
+        Stream<Path> paths = rootPath.stream().map(Paths::get);
+        paths.forEach(path -> walk(visitor, path));
+
+        long total = System.currentTimeMillis() - start;
+
+        logger.info("Total files indexed {} ", fileTreeCache.size());
+        logger.info("Took {} ms to create index", total);
+        logger.info("Folder visited {} , files visited {} , files matched {} , bytes read {} kb ",
+                visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed(), visitor.bytesRead() / 1024);
+
     }
 
     private void record(Path p) {
@@ -59,7 +60,8 @@ public class DiskCacheFileTreeCodeSearch implements Search {
         if (s % 10_000 == 0) {
             logger.info("Indexed {} files", s);
         }
-        fileTreeCache.put(p.toFile().getAbsolutePath(), p.toFile().length());
+        File file = p.toFile();
+        fileTreeCache.put(file.getAbsolutePath(), file.length());
     }
 
     private ContentMatcher matchFileName() {
@@ -69,22 +71,20 @@ public class DiskCacheFileTreeCodeSearch implements Search {
     @Override
     public void match(String pattern, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        CachedFileTreeProcessor processor = new CachedFileTreeProcessor(consumer, matchers, pattern, limit);
-        try {
-            fileTreeCache.keyList().parallelStream().forEach(f -> processor.searchFileContent(f));
-            //processor.matchFromLocation(fileTreeCache.keyIterator(fileTreeCache.firstKey()));
-            //paths.parallel().forEach(p -> processor.matchFromLocation(filesToScan(p)));
-        } finally {
-            long total = System.currentTimeMillis() - start;
-            logger.info("Took {} ms for search term {}", total, pattern);
-            logger.info("files visited {} , files matched {} , bytes read {} KB ",
-                    processor.filesVisited(), processor.filesProcessed(), processor.bytesRead() / 1024);
-        }
+        CachedFileTreeProcessor processor = new CachedFileTreeProcessor(matchers, consumer, pattern, limit);
+
+        fileTreeCache
+                .keyList()
+                .parallelStream()
+                .forEach(processor::search);
+
+        long total = System.currentTimeMillis() - start;
+        logger.info("Took {} ms for search term {}", total, pattern);
+        logger.info("files visited {} , files matched {} , bytes read {} KB ",
+                processor.filesVisited(), processor.filesProcessed(), processor.bytesRead() / 1024);
+
     }
 
-    private Iterator<String> filesToScan(Path p) {
-        return fileTreeCache.keyIterator(p.toFile().getAbsolutePath());
-    }
 
     private void walk(LiveFileTreeProcessor visitor, Path path) {
         try {

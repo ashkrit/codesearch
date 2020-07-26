@@ -1,6 +1,6 @@
 package org.search.codesearch.index.naive;
 
-import org.search.codesearch.Search;
+import org.search.codesearch.index.Search;
 import org.search.codesearch.index.matcher.ContentMatcher;
 import org.search.codesearch.index.matcher.OnDemandFileContentMatcher;
 import org.slf4j.Logger;
