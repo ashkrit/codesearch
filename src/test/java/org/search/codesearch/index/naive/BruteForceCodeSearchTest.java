@@ -41,4 +41,12 @@ public class BruteForceCodeSearchTest {
         assertEquals("tinylog.properties", result.get(0).toFile().getName());
     }
 
+    @Test
+    public void result_based_on_file_content() {
+        Search s = new BruteForceCodeSearch(rootPaths);
+        List<Path> result = new ArrayList<>();
+        s.match("stacktrace", x -> result.add(x), 10);
+        assertEquals("tinylog.properties", result.get(0).toFile().getName());
+    }
+
 }
