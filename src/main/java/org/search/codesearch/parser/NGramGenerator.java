@@ -1,10 +1,14 @@
 package org.search.codesearch.parser;
 
+import java.util.function.Consumer;
+
 public class NGramGenerator {
-    public String[] generate(String text, int noOfGrams) {
+
+    public void generate(String text, int noOfGrams, Consumer<String> consumer) {
         if (noOfGrams == 1) {
-            return text.split(" ");
+            for (String v : text.split(" ")) {
+                consumer.accept(v);
+            }
         }
-        return new String[]{};
     }
 }
