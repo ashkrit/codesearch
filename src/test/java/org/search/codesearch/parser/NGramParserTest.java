@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class TriGramParserTest {
+public class NGramParserTest {
 
 
     @Test
