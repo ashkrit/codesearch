@@ -25,7 +25,7 @@ public class NGramGenerator {
 
         String[] words = extractParts(text);
         for (String word : words) {
-            if (nGramRequired(noOfGrams, word)) {
+            if (isNGramRequired(noOfGrams, word)) {
                 generateNGrams(consumer, word);
             } else {
                 consumer.accept(word);
@@ -35,8 +35,8 @@ public class NGramGenerator {
     }
 
     private void generateNGrams(Consumer<String> consumer, String word) {
-        int length = word.length();
-        for (int index = 0; index + noOfGrams <= length; index++) {
+        int length = word.length() - noOfGrams;
+        for (int index = 0; index <= length; index++) {
             consumer.accept(word.substring(index, index + noOfGrams));
         }
     }
@@ -45,7 +45,7 @@ public class NGramGenerator {
         return text.split(token);
     }
 
-    private boolean nGramRequired(int noOfGrams, String word) {
+    private boolean isNGramRequired(int noOfGrams, String word) {
         return word.length() >= noOfGrams;
     }
 }

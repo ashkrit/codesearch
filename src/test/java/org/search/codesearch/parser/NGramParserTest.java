@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NGramParserTest {
 
-
     @Test
     public void generate_no_grams() {
         NGramGenerator g = new NGramGenerator(0, " ");
