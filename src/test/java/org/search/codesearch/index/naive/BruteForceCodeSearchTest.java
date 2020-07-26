@@ -26,10 +26,19 @@ public class BruteForceCodeSearchTest {
 
     @Test
     public void no_result_match_for_random_string() {
-
         Search s = new BruteForceCodeSearch(rootPaths);
         List<Path> result = new ArrayList<>();
         s.match("gsak jksd ", x -> result.add(x), 10);
         assertEquals(0, result.size());
     }
+
+
+    @Test
+    public void result_based_on_file_name() {
+        Search s = new BruteForceCodeSearch(rootPaths);
+        List<Path> result = new ArrayList<>();
+        s.match("tinylog", x -> result.add(x), 10);
+        assertEquals("tinylog.properties", result.get(0).toFile().getName());
+    }
+
 }
