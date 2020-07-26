@@ -9,7 +9,7 @@ Library for building code search
 
 
 # How to run
-This project ships shell based client to explore code. It can launched using below command
+This project ships shell a based client to explore code. It can be launched using below command.
 
 java org.search.codesearch.App -source code1path;code2path
 
