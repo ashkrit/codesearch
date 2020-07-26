@@ -1,8 +1,7 @@
-package org.search.codesearch.index.naive;
+package org.search.codesearch.index;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.search.codesearch.index.Search;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class CodeSearchTest {
 
-    Search codeSearch;
+    public Search codeSearch;
 
     @BeforeEach
     public void setup() throws URISyntaxException {

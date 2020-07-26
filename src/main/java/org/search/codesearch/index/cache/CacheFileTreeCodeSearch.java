@@ -33,15 +33,16 @@ public class CacheFileTreeCodeSearch implements Search {
 
     private List<File> loadFiles(Stream<Path> paths) {
         long start = System.currentTimeMillis();
-        try {
-            return paths.flatMap(this::walkSingleLocation)
-                    .map(Path::toFile)
-                    .filter(File::isFile)
-                    .collect(Collectors.toList());
-        } finally {
-            long total = System.currentTimeMillis() - start;
-            logger.info("Loaded {} locations and took {}", files.size(), total);
-        }
+
+        List<File> locations = paths.flatMap(this::walkSingleLocation)
+                .map(Path::toFile)
+                .filter(File::isFile)
+                .collect(Collectors.toList());
+
+        long total = System.currentTimeMillis() - start;
+        logger.info("Loaded {} locations and took {}", locations.size(), total);
+
+        return locations;
 
     }
 
