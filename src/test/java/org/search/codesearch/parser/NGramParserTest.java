@@ -32,6 +32,16 @@ public class NGramParserTest {
     }
 
     @Test
+    public void generate_grams_for_3letter_word() {
+        NGramGenerator g = new NGramGenerator(3, " ");
+
+        List<String> result = new ArrayList<>();
+        g.generate("cat rat mat", s -> result.add(s));
+
+        assertArrayEquals(new String[]{"cat", "rat", "mat"}, result.toArray(new String[]{}));
+    }
+
+    @Test
     public void failed_when_grams_are_too_small() {
         NGramGenerator g = new NGramGenerator(1, " ");
         assertThrows(IllegalArgumentException.class, () -> g.generate("this is simple text", s -> {
