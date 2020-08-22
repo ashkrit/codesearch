@@ -25,6 +25,9 @@ public class NGramGenerator {
 
         String[] words = extractParts(text);
         for (String word : words) {
+            if (word.trim().isEmpty()) {
+                continue;
+            }
             if (isNGramRequired(noOfGrams, word)) {
                 generateNGrams(consumer, word);
             } else {
@@ -46,6 +49,6 @@ public class NGramGenerator {
     }
 
     private boolean isNGramRequired(int noOfGrams, String word) {
-        return word.length() >= noOfGrams;
+        return word.trim().length() >= noOfGrams;
     }
 }
