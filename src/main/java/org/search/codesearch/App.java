@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Function;
 
+import static java.util.Objects.requireNonNull;
+
 
 public class App {
 
@@ -24,6 +26,10 @@ public class App {
     public static void main(String[] args) {
         Map<String, String> params = ArgsParser.cmdParams(args);
 
+        if (params.isEmpty()) {
+            throw new IllegalArgumentException("Params missing or eg -source /github/codesearch");
+        }
+
         logger.info("Search params {}", params);
         String rootPath = params.get("source");
         List<String> locations = Arrays.asList(rootPath.split(";"));
@@ -31,7 +37,7 @@ public class App {
         String key = algoToUse(params);
         Function<List<String>, Search> searchBuilder = searchAlgo.get(key);
 
-        Objects.requireNonNull(searchBuilder, String.format("Unable to find %s, supported algo are %s", key, searchAlgo.keySet()));
+        requireNonNull(searchBuilder, String.format("Unable to find %s, supported algo are %s", key, searchAlgo.keySet()));
 
         Search search = searchBuilder.apply(locations);
 
@@ -48,8 +54,7 @@ public class App {
     }
 
     private static String algoToUse(Map<String, String> params) {
-        String algo = params.get("algo");
-        return (algo == null) ? "cache" : algo;
+        return params.getOrDefault("algo", "cache");
     }
 
 }
