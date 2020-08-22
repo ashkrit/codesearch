@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
+import static org.search.codesearch.index.matcher.InMemoryFileContentMatcher.MatchType.BoyerMoor;
+import static org.search.codesearch.index.matcher.InMemoryFileContentMatcher.MatchType.StringContains;
 
 
 public class App {
@@ -19,8 +21,9 @@ public class App {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private static Map<String, Function<List<String>, Search>> searchAlgo = new HashMap<String, Function<List<String>, Search>>() {{
-        put("naive", x -> new BruteForceCodeSearch(x));
-        put("cache", x -> new CacheFileTreeCodeSearch(x, InMemoryFileContentMatcher.create()));
+        put("naive", paths -> new BruteForceCodeSearch(paths));
+        put("cache", x -> new CacheFileTreeCodeSearch(x, InMemoryFileContentMatcher.create(StringContains)));
+        put("bcache", x -> new CacheFileTreeCodeSearch(x, InMemoryFileContentMatcher.create(BoyerMoor)));
     }};
 
     public static void main(String[] args) {
@@ -48,13 +51,12 @@ public class App {
             String p = scanner.nextLine();
             if (p.trim().isEmpty()) continue;
             search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000);
-
         }
 
     }
 
     private static String algoToUse(Map<String, String> params) {
-        return params.getOrDefault("algo", "cache");
+        return params.getOrDefault("algo", "bcache");
     }
 
 }
