@@ -19,22 +19,16 @@ import static java.lang.ThreadLocal.withInitial;
 
 public class InMemoryFileContentMatcher implements ContentMatcher {
 
-    private final BiFunction<String, String, Boolean> matchFunction;
     public static final int MAX_PATTERNS = 100;
+    private static final Logger logger = LoggerFactory.getLogger(InMemoryFileContentMatcher.class);
+    private static final ThreadLocal<Map<String, BoyerMoore>> patternCache = withInitial(() -> sizeLimitMap());
 
-    private static final ThreadLocal<Map<String, BoyerMoore>> patternCache = withInitial(() -> new LinkedHashMap<String, BoyerMoore>() {
-        protected boolean removeEldestEntry(Map.Entry eldest) {
-            return size() > MAX_PATTERNS;
-        }
-    });
+    private final BiFunction<String, String, Boolean> matchFunction;
+    private final ConcurrentMap<Path, String> fileContent = new ConcurrentHashMap<>();
 
     public InMemoryFileContentMatcher(BiFunction<String, String, Boolean> matchFunction) {
         this.matchFunction = matchFunction;
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(InMemoryFileContentMatcher.class);
-
-    private final ConcurrentMap<Path, String> fileContent = new ConcurrentHashMap<>();
 
     public static ContentMatcher create(MatchType value) {
         return value.create();
@@ -55,13 +49,17 @@ public class InMemoryFileContentMatcher implements ContentMatcher {
 
     }
 
-    public static boolean bruteMatch(String patter, String wholeText) {
-        return wholeText.contains(patter);
+    public static boolean bruteMatch(String pattern, String wholeText) {
+        return wholeText.contains(pattern);
     }
 
-    public static boolean boyerMatch(String patter, String wholeText) {
-        BoyerMoore bm = patternCache.get().computeIfAbsent(patter, p -> new BoyerMoore(p));
+    public static boolean boyerMatch(String pattern, String wholeText) {
+        BoyerMoore bm = readPatternCache(pattern);
         return bm.search(wholeText) >= 0;
+    }
+
+    private static BoyerMoore readPatternCache(String patter) {
+        return patternCache.get().computeIfAbsent(patter, p -> new BoyerMoore(p));
     }
 
     private void readIfRequired(Path p) {
@@ -75,5 +73,13 @@ public class InMemoryFileContentMatcher implements ContentMatcher {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static Map<String, BoyerMoore> sizeLimitMap() {
+        return new LinkedHashMap<String, BoyerMoore>() {
+            protected boolean removeEldestEntry(Map.Entry eldest) {
+                return size() > MAX_PATTERNS;
+            }
+        };
     }
 }

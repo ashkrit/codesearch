@@ -12,7 +12,8 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
-import static org.search.codesearch.index.matcher.MatchType.*;
+import static org.search.codesearch.index.matcher.MatchType.BoyerMoor;
+import static org.search.codesearch.index.matcher.MatchType.StringContains;
 
 
 public class App {
@@ -59,7 +60,7 @@ public class App {
     }
 
     private static String algoToUse(Map<String, String> params) {
-        return params.getOrDefault("algo", "bcache");
+        return params.getOrDefault("algo", "cache");
     }
 
 }
