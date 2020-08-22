@@ -25,7 +25,6 @@ public class CacheFileTreeCodeSearch implements Search {
     private final List<File> files;
 
     public CacheFileTreeCodeSearch(List<String> rootPaths, ContentMatcher fileContentMatcher) {
-
         this.rootPath = rootPaths;
         this.matchers = Arrays.asList(matchFileName(), fileContentMatcher);
         this.files = loadFiles(rootPath.stream().map(Paths::get));
