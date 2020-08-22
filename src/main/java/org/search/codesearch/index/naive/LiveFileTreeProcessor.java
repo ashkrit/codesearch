@@ -1,6 +1,7 @@
 package org.search.codesearch.index.naive;
 
 import org.search.codesearch.index.FileTypes;
+import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.matcher.ContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,19 +25,19 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
 
     private final Consumer<Path> consumer;
     private final List<ContentMatcher> matchers;
-    private final String pattern;
     private final int limit;
     private final AtomicLong filesVisited = new AtomicLong();
     private final AtomicLong folderVisited = new AtomicLong();
     private final AtomicLong filesProcessed = new AtomicLong();
     private final AtomicLong bytesRead = new AtomicLong();
+    private final SearchQuery query;
 
 
-    public LiveFileTreeProcessor(Consumer<Path> consumer, List<ContentMatcher> matchers, String pattern, int limit) {
+    public LiveFileTreeProcessor(SearchQuery query, Consumer<Path> consumer, List<ContentMatcher> matchers, int limit) {
         this.consumer = consumer;
         this.matchers = matchers;
-        this.pattern = pattern;
         this.limit = limit;
+        this.query = query;
     }
 
     @Override
@@ -62,7 +63,7 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
 
         bytesRead.addAndGet(file.toFile().length());
         Optional<ContentMatcher> match = matchers.stream()
-                .filter(x -> x.match(file, pattern))
+                .filter(x -> match(file, x))
                 .findFirst();
 
         match.ifPresent($ -> {
@@ -71,6 +72,15 @@ public class LiveFileTreeProcessor extends SimpleFileVisitor<Path> {
         });
 
         return filesProcessed() < this.limit ? CONTINUE : FileVisitResult.TERMINATE;
+    }
+
+    private boolean match(Path fileToCheck, ContentMatcher x) {
+        for (String p : query.patterns) {
+            if (x.match(fileToCheck, p)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -21,7 +21,7 @@ public class InMemoryFileContentMatcher implements ContentMatcher {
 
     public static final int MAX_PATTERNS = 100;
     private static final Logger logger = LoggerFactory.getLogger(InMemoryFileContentMatcher.class);
-    private static final ThreadLocal<Map<String, BoyerMoore>> patternCache = withInitial(() -> sizeLimitMap());
+    private static final ThreadLocal<Map<String, BoyerMoore>> patternCache = withInitial(InMemoryFileContentMatcher::sizeLimitMap);
 
     private final BiFunction<String, String, Boolean> matchFunction;
     private final ConcurrentMap<Path, String> fileContent = new ConcurrentHashMap<>();
@@ -59,11 +59,11 @@ public class InMemoryFileContentMatcher implements ContentMatcher {
     }
 
     private static BoyerMoore readPatternCache(String patter) {
-        return patternCache.get().computeIfAbsent(patter, p -> new BoyerMoore(p));
+        return patternCache.get().computeIfAbsent(patter, BoyerMoore::new);
     }
 
     private void readIfRequired(Path p) {
-        fileContent.computeIfAbsent(p, f -> loadFile(f));
+        fileContent.computeIfAbsent(p, this::loadFile);
     }
 
     private String loadFile(Path p) {

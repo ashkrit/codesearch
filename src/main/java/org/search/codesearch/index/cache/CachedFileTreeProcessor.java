@@ -1,6 +1,7 @@
 package org.search.codesearch.index.cache;
 
 import org.search.codesearch.index.SearchMetrics;
+import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.matcher.ContentMatcher;
 
 import java.nio.file.Path;
@@ -12,15 +13,15 @@ import java.util.function.Consumer;
 public class CachedFileTreeProcessor {
     private final Consumer<Path> consumer;
     private final List<ContentMatcher> matchers;
-    private final String pattern;
     private final int limit;
     private final SearchMetrics metrics = new SearchMetrics();
+    private final SearchQuery query;
 
-    public CachedFileTreeProcessor(List<ContentMatcher> matchers, Consumer<Path> consumer, String pattern, int limit) {
+    public CachedFileTreeProcessor(List<ContentMatcher> matchers, Consumer<Path> consumer, int limit, SearchQuery query) {
         this.consumer = consumer;
         this.matchers = matchers;
-        this.pattern = pattern;
         this.limit = limit;
+        this.query = query;
     }
 
     public SearchMetrics getMetrics() {
@@ -44,13 +45,22 @@ public class CachedFileTreeProcessor {
         updateReadBytes(fileToCheck);
 
         Optional<ContentMatcher> match = matchers.stream()
-                .filter(x -> x.match(fileToCheck, pattern))
+                .filter(x -> match(fileToCheck, x))
                 .findFirst();
 
         match.ifPresent($ -> {
             consumer.accept(fileToCheck);
             metrics.recordFileProcessed();
         });
+    }
+
+    private boolean match(Path fileToCheck, ContentMatcher x) {
+        for (String p : query.patterns) {
+            if (x.match(fileToCheck, p)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateReadBytes(Path fileToCheck) {

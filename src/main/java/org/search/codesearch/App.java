@@ -2,6 +2,7 @@ package org.search.codesearch;
 
 import org.search.codesearch.args.ArgsParser;
 import org.search.codesearch.index.Search;
+import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.cache.CacheFileTreeCodeSearch;
 import org.search.codesearch.index.matcher.InMemoryFileContentMatcher;
 import org.search.codesearch.index.naive.BruteForceCodeSearch;
@@ -39,7 +40,7 @@ public class App {
         while (scanner.hasNext()) {
             String p = scanner.nextLine();
             if (p.trim().isEmpty()) continue;
-            search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000_000);
+            search.match(new SearchQuery(p.toLowerCase()), file -> logger.info("Found {}", file), 1000_000);
         }
 
     }

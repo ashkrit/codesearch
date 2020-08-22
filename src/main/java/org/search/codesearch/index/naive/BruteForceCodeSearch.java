@@ -1,6 +1,7 @@
 package org.search.codesearch.index.naive;
 
 import org.search.codesearch.index.Search;
+import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.matcher.ContentMatcher;
 import org.search.codesearch.index.matcher.OnDemandFileContentMatcher;
 import org.slf4j.Logger;
@@ -33,15 +34,15 @@ public class BruteForceCodeSearch implements Search {
     }
 
     @Override
-    public void match(String pattern, Consumer<Path> consumer, int limit) {
+    public void match(SearchQuery query, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(consumer, this.matchers, pattern.toLowerCase(), limit);
+        LiveFileTreeProcessor visitor = new LiveFileTreeProcessor(query, consumer, this.matchers, limit);
         try {
             Stream<Path> paths = rootPath.stream().map(Paths::get);
             paths.forEach(path -> walk(visitor, path));
         } finally {
             long total = System.currentTimeMillis() - start;
-            logger.info("Took {} ms for search term {}", total, pattern);
+            logger.info("Took {} ms for search term {}", total, query);
             logger.info("Folder visited {} , files visited {} , files matched {} , bytes read {} KB ",
                     visitor.folderVisited(), visitor.filesVisited(), visitor.filesProcessed(), visitor.bytesRead() / 1024);
         }

@@ -2,6 +2,7 @@ package org.search.codesearch.index.cache;
 
 import org.search.codesearch.index.Search;
 import org.search.codesearch.index.SearchMetrics;
+import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.matcher.ContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,15 +52,15 @@ public class CacheFileTreeCodeSearch implements Search {
     }
 
     @Override
-    public void match(String pattern, Consumer<Path> consumer, int limit) {
+    public void match(SearchQuery query, Consumer<Path> consumer, int limit) {
         long start = System.currentTimeMillis();
-        CachedFileTreeProcessor processor = new CachedFileTreeProcessor(matchers, consumer, pattern, limit);
+        CachedFileTreeProcessor processor = new CachedFileTreeProcessor(matchers, consumer, limit, query);
 
         files.parallelStream()
                 .forEach(f -> processor.search(f.getAbsolutePath()));
 
         long total = System.currentTimeMillis() - start;
-        logger.info("Took {} ms for search term {}", total, pattern);
+        logger.info("Took {} ms for search term {}", total, query);
         SearchMetrics metrics = processor.getMetrics();
         logger.info("files visited {} , files matched {} , bytes read {} KB ",
                 metrics.filesVisited(), metrics.filesProcessed(), metrics.bytesRead() / 1024);

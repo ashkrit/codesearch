@@ -23,7 +23,8 @@ public abstract class CodeSearchTest {
     public void no_result_match_for_random_string() {
 
         List<Path> result = new ArrayList<>();
-        codeSearch.match("gsak jksd ", x -> result.add(x), 10);
+        String text = "gsak jksd ";
+        codeSearch.match(new SearchQuery(text), x -> result.add(x), 10);
         assertEquals(0, result.size());
     }
 
@@ -32,14 +33,16 @@ public abstract class CodeSearchTest {
     public void result_based_on_file_name() {
 
         List<Path> result = new ArrayList<>();
-        codeSearch.match("tinylog", x -> result.add(x), 10);
+        String text = "tinylog";
+        codeSearch.match(new SearchQuery(text), x -> result.add(x), 10);
         assertEquals("tinylog.properties", result.get(0).toFile().getName());
     }
 
     @Test
     public void result_based_on_file_content() {
         List<Path> result = new ArrayList<>();
-        codeSearch.match("stacktrace", x -> result.add(x), 10);
+        String text = "stacktrace";
+        codeSearch.match(new SearchQuery(text), x -> result.add(x), 10);
         assertEquals("tinylog.properties", result.get(0).toFile().getName());
     }
 
