@@ -12,8 +12,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
-import static org.search.codesearch.index.matcher.InMemoryFileContentMatcher.MatchType.BoyerMoor;
-import static org.search.codesearch.index.matcher.InMemoryFileContentMatcher.MatchType.StringContains;
+import static org.search.codesearch.index.matcher.MatchType.*;
 
 
 public class App {
@@ -33,10 +32,21 @@ public class App {
             throw new IllegalArgumentException("Params missing or eg -source /github/codesearch");
         }
 
+        Search search = createSearch(params);
+
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNext()) {
+            String p = scanner.nextLine();
+            if (p.trim().isEmpty()) continue;
+            search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000_000);
+        }
+
+    }
+
+    private static Search createSearch(Map<String, String> params) {
         logger.info("Search params {}", params);
         String rootPath = params.get("source");
         List<String> locations = Arrays.asList(rootPath.split(";"));
-
         String key = algoToUse(params);
         Function<List<String>, Search> searchBuilder = searchAlgo.get(key);
 
@@ -45,14 +55,7 @@ public class App {
         Search search = searchBuilder.apply(locations);
 
         logger.info("Start search now ....");
-
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNext()) {
-            String p = scanner.nextLine();
-            if (p.trim().isEmpty()) continue;
-            search.match(p.toLowerCase(), file -> logger.info("Found {}", file), 1000);
-        }
-
+        return search;
     }
 
     private static String algoToUse(Map<String, String> params) {

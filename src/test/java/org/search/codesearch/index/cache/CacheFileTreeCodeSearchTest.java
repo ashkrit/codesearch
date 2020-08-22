@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.search.codesearch.index.matcher.InMemoryFileContentMatcher.MatchType.StringContains;
+import static org.search.codesearch.index.matcher.MatchType.StringContains;
 
 public class CacheFileTreeCodeSearchTest extends CodeSearchTest {
 

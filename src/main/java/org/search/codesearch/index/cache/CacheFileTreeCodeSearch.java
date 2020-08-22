@@ -62,7 +62,6 @@ public class CacheFileTreeCodeSearch implements Search {
         logger.info("Took {} ms for search term {}", total, pattern);
         logger.info("files visited {} , files matched {} , bytes read {} KB ",
                 processor.filesVisited(), processor.filesProcessed(), processor.bytesRead() / 1024);
-
     }
 
     private Stream<Path> walkSingleLocation(Path path) {
