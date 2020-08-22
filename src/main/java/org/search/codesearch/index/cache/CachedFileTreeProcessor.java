@@ -1,12 +1,12 @@
 package org.search.codesearch.index.cache;
 
+import org.search.codesearch.index.SearchMetrics;
 import org.search.codesearch.index.matcher.ContentMatcher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 public class CachedFileTreeProcessor {
@@ -14,10 +14,7 @@ public class CachedFileTreeProcessor {
     private final List<ContentMatcher> matchers;
     private final String pattern;
     private final int limit;
-
-    private final LongAdder filesVisited = new LongAdder();
-    private final LongAdder filesProcessed = new LongAdder();
-    private final LongAdder bytesRead = new LongAdder();
+    private final SearchMetrics metrics = new SearchMetrics();
 
     public CachedFileTreeProcessor(List<ContentMatcher> matchers, Consumer<Path> consumer, String pattern, int limit) {
         this.consumer = consumer;
@@ -26,21 +23,12 @@ public class CachedFileTreeProcessor {
         this.limit = limit;
     }
 
-    public long filesProcessed() {
-        return filesProcessed.longValue();
+    public SearchMetrics getMetrics() {
+        return metrics;
     }
-
-    public long filesVisited() {
-        return filesVisited.longValue();
-    }
-
-    public long bytesRead() {
-        return bytesRead.longValue();
-    }
-
 
     public void search(String f) {
-        //filesVisited.increment();
+        metrics.recordFileVisited();
         if (limitReached()) {
             return;
         }
@@ -48,7 +36,7 @@ public class CachedFileTreeProcessor {
     }
 
     private boolean limitReached() {
-        return filesProcessed.intValue() >= this.limit;
+        return metrics.filesProcessed() >= this.limit;
     }
 
     private void match(String filePath) {
@@ -61,11 +49,11 @@ public class CachedFileTreeProcessor {
 
         match.ifPresent($ -> {
             consumer.accept(fileToCheck);
-            filesProcessed.increment();
+            metrics.recordFileProcessed();
         });
     }
 
     private void updateReadBytes(Path fileToCheck) {
-        //bytesRead.add(fileToCheck.toFile().length());
+        metrics.recordBytesRead(fileToCheck.toFile().length());
     }
 }
