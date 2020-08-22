@@ -3,15 +3,9 @@ package org.search.codesearch.index;
 public class BoyerMoore {
     private final int R;     // the radix
     private int[] right;     // the bad-character skip array
-
     private char[] pattern;  // store the pattern as a character array
     private String pat;      // or as a string
 
-    /**
-     * Preprocesses the pattern string.
-     *
-     * @param pat the pattern string
-     */
     public BoyerMoore(String pat) {
         this.R = 256;
         this.pat = pat;
@@ -24,12 +18,6 @@ public class BoyerMoore {
             right[pat.charAt(j)] = j;
     }
 
-    /**
-     * Preprocesses the pattern string.
-     *
-     * @param pattern the pattern string
-     * @param R       the alphabet size
-     */
     public BoyerMoore(char[] pattern, int R) {
         this.R = R;
         this.pattern = new char[pattern.length];
@@ -44,14 +32,6 @@ public class BoyerMoore {
             right[pattern[j]] = j;
     }
 
-    /**
-     * Returns the index of the first occurrrence of the pattern string
-     * in the text string.
-     *
-     * @param txt the text string
-     * @return the index of the first occurrence of the pattern string
-     * in the text string; n if no such match
-     */
     public int search(String txt) {
         int m = pat.length();
         int n = txt.length();
@@ -66,34 +46,6 @@ public class BoyerMoore {
             }
             if (skip == 0) return i;    // found
         }
-        return n;                       // not found
+        return -1;                       // not found
     }
-
-
-    /**
-     * Returns the index of the first occurrrence of the pattern string
-     * in the text string.
-     *
-     * @param text the text string
-     * @return the index of the first occurrence of the pattern string
-     * in the text string; n if no such match
-     */
-    public int search(char[] text) {
-        int m = pattern.length;
-        int n = text.length;
-        int skip;
-        for (int i = 0; i <= n - m; i += skip) {
-            skip = 0;
-            for (int j = m - 1; j >= 0; j--) {
-                if (pattern[j] != text[i + j]) {
-                    skip = Math.max(1, j - right[text[i + j]]);
-                    break;
-                }
-            }
-            if (skip == 0) return i;    // found
-        }
-        return n;                       // not found
-    }
-
-
 }
