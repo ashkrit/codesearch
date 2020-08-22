@@ -54,6 +54,7 @@ public class CachedFileTreeProcessor {
     }
 
     private void updateReadBytes(Path fileToCheck) {
-        metrics.recordBytesRead(fileToCheck.toFile().length());
+        // This is expensive metrics as it involve IO
+        //metrics.recordBytesRead(fileToCheck.toFile().length());
     }
 }

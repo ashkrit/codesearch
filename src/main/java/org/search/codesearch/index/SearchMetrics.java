@@ -3,8 +3,10 @@ package org.search.codesearch.index;
 import java.util.concurrent.atomic.LongAdder;
 
 public class SearchMetrics {
+
     private final LongAdder filesVisited = new LongAdder();
     private final LongAdder filesProcessed = new LongAdder();
+    //private final AtomicLong filesProcessed = new AtomicLong();
     private final LongAdder bytesRead = new LongAdder();
 
     public void recordFileProcessed() {
@@ -12,11 +14,11 @@ public class SearchMetrics {
     }
 
     public void recordFileVisited() {
-        //filesVisited.increment();
+        filesVisited.increment();
     }
 
     public void recordBytesRead(long bytes) {
-        //bytesRead.add(bytes);
+        bytesRead.add(bytes);
     }
 
     public long filesProcessed() {

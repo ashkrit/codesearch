@@ -46,7 +46,6 @@ public class InMemoryFileContentMatcher implements ContentMatcher {
             return false;
         try {
             readIfRequired(p);
-            //return false;
             String data = fileContent.get(p);
             return matchFunction.apply(pattern, data);
         } catch (Exception e) {
