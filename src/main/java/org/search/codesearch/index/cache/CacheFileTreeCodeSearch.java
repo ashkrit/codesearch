@@ -32,6 +32,7 @@ public class CacheFileTreeCodeSearch implements Search {
     public CacheFileTreeCodeSearch(List<String> rootPaths, ContentMatcher fileContentMatcher) {
         this.rootPath = rootPaths;
         this.matchers = Arrays.asList(matchFileName(), fileContentMatcher);
+        logger.info("Indexing {}", rootPaths);
         this.files = loadFiles(rootPath.stream().map(Paths::get));
     }
 
