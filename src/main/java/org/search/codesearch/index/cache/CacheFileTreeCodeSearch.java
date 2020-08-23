@@ -38,13 +38,20 @@ public class CacheFileTreeCodeSearch implements Search {
     private List<File> loadFiles(Stream<Path> paths) {
         long start = System.currentTimeMillis();
 
-        List<File> locations = paths.flatMap(this::walkSingleLocation)
-                .map(Path::toFile)
-                .filter(File::isFile)
-                .parallel()
-                .peek(file -> summarizingFile(indexMetrics, file))
-                .collect(Collectors.toList());
+        List<File> locations = identifyFiles(paths);
+        LongSummaryStatistics summary = collectFileSizeMetrics(locations);
 
+        long total = System.currentTimeMillis() - start;
+
+        logger.info("File summary stats Avg {} KB , Max file {} KB, Total {} KB", summary.getAverage() / 1024, summary.getMax() / 1024, summary.getSum() / 1024);
+        logger.info("Index Summary {}", indexMetrics);
+        logger.info("Loaded {} files and took {} Second", locations.size(), total / 1000);
+
+        return locations;
+
+    }
+
+    private LongSummaryStatistics collectFileSizeMetrics(List<File> locations) {
         LongSummaryStatistics summary = locations
                 .stream()
                 .parallel()
@@ -55,14 +62,16 @@ public class CacheFileTreeCodeSearch implements Search {
         String summaryText = f.map(file -> file.getAbsolutePath() + " (" + file.length() + ")").orElse("NA");
 
         logger.info("Max file {}", summaryText);
-        long total = System.currentTimeMillis() - start;
+        return summary;
+    }
 
-        logger.info("File summary stats Avg {} KB , Max file {} KB, Total {} KB", summary.getAverage() / 1024, summary.getMax() / 1024, summary.getSum() / 1024);
-        logger.info("Index Summary {}", indexMetrics);
-        logger.info("Loaded {} files and took {} Second", locations.size(), total / 1000);
-
-        return locations;
-
+    private List<File> identifyFiles(Stream<Path> paths) {
+        return paths.flatMap(this::walkSingleLocation)
+                .map(Path::toFile)
+                .filter(File::isFile)
+                .parallel()
+                .peek(file -> summarizingFile(indexMetrics, file))
+                .collect(Collectors.toList());
     }
 
 
