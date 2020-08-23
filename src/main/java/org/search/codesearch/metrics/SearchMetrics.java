@@ -1,4 +1,4 @@
-package org.search.codesearch.index;
+package org.search.codesearch.metrics;
 
 import java.util.concurrent.atomic.LongAdder;
 
