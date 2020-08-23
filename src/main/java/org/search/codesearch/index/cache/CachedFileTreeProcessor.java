@@ -2,7 +2,7 @@ package org.search.codesearch.index.cache;
 
 import org.search.codesearch.index.SearchMetrics;
 import org.search.codesearch.index.SearchQuery;
-import org.search.codesearch.index.matcher.ContentMatcher;
+import org.search.codesearch.matcher.ContentMatcher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

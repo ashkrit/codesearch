@@ -2,8 +2,8 @@ package org.search.codesearch.index.naive;
 
 import org.search.codesearch.index.Search;
 import org.search.codesearch.index.SearchQuery;
-import org.search.codesearch.index.matcher.ContentMatcher;
-import org.search.codesearch.index.matcher.OnDemandFileContentMatcher;
+import org.search.codesearch.matcher.ContentMatcher;
+import org.search.codesearch.matcher.OnDemandFileContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

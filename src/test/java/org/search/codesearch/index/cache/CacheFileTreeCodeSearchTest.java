@@ -1,7 +1,7 @@
 package org.search.codesearch.index.cache;
 
 import org.search.codesearch.index.CodeSearchTest;
-import org.search.codesearch.index.matcher.InMemoryFileContentMatcher;
+import org.search.codesearch.matcher.InMemoryFileContentMatcher;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.search.codesearch.index.matcher.MatchType.StringContains;
+import static org.search.codesearch.matcher.MatchType.StringContains;
 
 public class CacheFileTreeCodeSearchTest extends CodeSearchTest {
 

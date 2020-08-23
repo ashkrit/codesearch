@@ -3,7 +3,7 @@ package org.search.codesearch.index.cache;
 import org.search.codesearch.index.Search;
 import org.search.codesearch.index.SearchMetrics;
 import org.search.codesearch.index.SearchQuery;
-import org.search.codesearch.index.matcher.ContentMatcher;
+import org.search.codesearch.matcher.ContentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,10 +79,14 @@ public class CacheFileTreeCodeSearch implements Search {
     private Stream<Path> walkSingleLocation(Path path) {
         try {
             return Files.walk(path)
-                    .filter(f -> !f.toFile().getAbsolutePath().contains(".git"));
+                    .filter(this::isNonGit);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private boolean isNonGit(Path f) {
+        return !f.toFile().getAbsolutePath().contains(".git");
     }
 
 }
