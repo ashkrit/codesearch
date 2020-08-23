@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,9 +35,16 @@ public class CacheFileTreeCodeSearch implements Search {
     private List<File> loadFiles(Stream<Path> paths) {
         long start = System.currentTimeMillis();
 
+        AtomicLong fCount = new AtomicLong();
         List<File> locations = paths.flatMap(this::walkSingleLocation)
                 .map(Path::toFile)
                 .filter(File::isFile)
+                .peek(x -> {
+                    long current = fCount.incrementAndGet();
+                    if (current % 10_000 == 0) {
+                        logger.info("Reading file {}", current);
+                    }
+                })
                 .collect(Collectors.toList());
 
         LongSummaryStatistics summary = locations
