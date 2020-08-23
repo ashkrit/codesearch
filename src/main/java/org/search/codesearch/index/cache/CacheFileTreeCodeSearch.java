@@ -13,8 +13,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,8 +39,19 @@ public class CacheFileTreeCodeSearch implements Search {
                 .filter(File::isFile)
                 .collect(Collectors.toList());
 
+        LongSummaryStatistics summary = locations
+                .stream()
+                .parallel()
+                .collect(Collectors.summarizingLong(File::length));
+
+        Optional<File> f = locations.stream()
+                .parallel().max(Comparator.comparingLong(File::length));
+        String summaryText = f.map(file -> file.getAbsolutePath() + " (" + file.length() + ")").orElse("NA");
+        logger.info("Max file {}", summaryText);
         long total = System.currentTimeMillis() - start;
-        logger.info("Loaded {} locations and took {}", locations.size(), total);
+
+        logger.info("File summary stats Avg {} KB , Max file {} KB, Total {} KB", summary.getAverage() / 1024, summary.getMax() / 1024, summary.getSum() / 1024);
+        logger.info("Loaded {} files and took {} Second", locations.size(), total / 1000);
 
         return locations;
 
@@ -68,7 +78,8 @@ public class CacheFileTreeCodeSearch implements Search {
 
     private Stream<Path> walkSingleLocation(Path path) {
         try {
-            return Files.walk(path);
+            return Files.walk(path)
+                    .filter(f -> !f.toFile().getAbsolutePath().contains(".git"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

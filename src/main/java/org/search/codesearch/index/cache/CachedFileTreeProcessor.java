@@ -45,7 +45,7 @@ public class CachedFileTreeProcessor {
         updateReadBytes(fileToCheck);
 
         Optional<ContentMatcher> match = matchers.stream()
-                .filter(x -> match(fileToCheck, x))
+                .filter(matcher -> match(matcher, fileToCheck))
                 .findFirst();
 
         match.ifPresent($ -> {
@@ -54,9 +54,9 @@ public class CachedFileTreeProcessor {
         });
     }
 
-    private boolean match(Path fileToCheck, ContentMatcher x) {
+    private boolean match(ContentMatcher matcher, Path file) {
         for (String p : query.patterns) {
-            if (x.match(fileToCheck, p)) {
+            if (matcher.match(file, p)) {
                 return true;
             }
         }

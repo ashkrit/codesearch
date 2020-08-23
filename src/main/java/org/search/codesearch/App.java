@@ -40,7 +40,8 @@ public class App {
         while (scanner.hasNext()) {
             String p = scanner.nextLine();
             if (p.trim().isEmpty()) continue;
-            search.match(new SearchQuery(p.toLowerCase()), file -> logger.info("Found {}", file), 1000_000);
+            SearchQuery query = new SearchQuery(p.trim().toLowerCase());
+            search.match(query, file -> logger.info("Found {}", file), 65_000);
         }
 
     }
