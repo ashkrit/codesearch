@@ -1,42 +1,28 @@
 package org.search.codesearch.metrics;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class JavaFileMetrics implements SourceFileMetrics {
 
     @Override
-    public void collect(IndexMetrics metrics, File file) {
-        collectMetrics(metrics, file);
+    public void collect(IndexMetrics metrics, File file, Optional<List<String>> mayBeLines) {
+        collectMetrics(metrics, file, mayBeLines);
     }
 
-    private static void collectMetrics(IndexMetrics indexMetrics, File x) {
-        try {
-            List<String> lines = fileContent(x);
-            if (isJava(x)) {
-                long methodCount = lines.stream().filter(JavaFileMetrics::isMethod).count();
-                long variableCount = lines.stream().filter(JavaFileMetrics::isInstanceVariable).count();
-                indexMetrics.noOfFunction.addAndGet(methodCount);
-                indexMetrics.noOfVariable.addAndGet(variableCount);
-            }
-            indexMetrics.noOfLines.addAndGet(lines.size());
-        } catch (IOException e) {
-            //
+    private static void collectMetrics(IndexMetrics indexMetrics, File x, Optional<List<String>> mayBeLines) {
+        if (isJava(x)) {
+            List<String> lines = mayBeLines.get();
+            long methodCount = lines.stream().filter(JavaFileMetrics::isMethod).count();
+            long variableCount = lines.stream().filter(JavaFileMetrics::isInstanceVariable).count();
+            indexMetrics.recordFunction(methodCount);
+            indexMetrics.recordVariable(variableCount);
         }
     }
 
     private static boolean isJava(File x) {
         return x.getName().endsWith("java");
-    }
-
-    private static List<String> fileContent(File file) throws IOException {
-        return Files.readAllLines(file.toPath()).stream()
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
     }
 
     private static boolean isMethod(String line) {

@@ -9,6 +9,10 @@ public class IndexMetrics {
     public final AtomicLong noOfVariable = new AtomicLong();
     public final AtomicLong noOfClass = new AtomicLong();
 
+    public void recordFunction(long value) {
+        noOfFunction.addAndGet(value);
+    }
+
 
     @Override
     public String toString() {
@@ -22,4 +26,11 @@ public class IndexMetrics {
         );
     }
 
+    public void recordVariable(long count) {
+        noOfVariable.addAndGet(count);
+    }
+
+    public void recordLines(long count) {
+        noOfLines.addAndGet(count);
+    }
 }
