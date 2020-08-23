@@ -1,5 +1,5 @@
 # codesearch 
-Library for building code search
+Library for searching large code base
 
 # Features
 
@@ -7,11 +7,22 @@ Library for building code search
 - Allow searching based on file names.
 - Allow searching based on file content.
 
+#Design
+TODO
 
 # How to run
-This project ships shell a based client to explore code. It can be launched using below command.
+This project ships shell & REST API to explore code. 
 
-java org.search.codesearch.main.CodeSearchCLI -source code1path;code2path
+Shell client 
+```
+ java org.search.codesearch.main.CodeSearchCLI -source code1path;code2path
+```
 
-eg 
-java org.search.codesearch.main.CodeSearchCLI -source ..\github\jdk;..\github\h2database
+REST Server
+```
+java org.search.codesearch.main.CodeSearchServer -source ..\github\jdk;..\github\h2database
+```
+
+Rest API 
+
+http://localhost:8080/search?pattern=concurrenthashmap&limit=100

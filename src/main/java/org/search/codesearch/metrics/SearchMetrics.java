@@ -6,7 +6,6 @@ public class SearchMetrics {
 
     private final LongAdder filesVisited = new LongAdder();
     private final LongAdder filesProcessed = new LongAdder();
-    //private final AtomicLong filesProcessed = new AtomicLong();
     private final LongAdder bytesRead = new LongAdder();
 
     public void recordFileProcessed() {
