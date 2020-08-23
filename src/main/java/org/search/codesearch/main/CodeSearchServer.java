@@ -1,9 +1,9 @@
 package org.search.codesearch.main;
 
 import org.eclipse.jetty.server.Server;
-import org.search.codesearch.handler.codesearch.CodeSearchProcessor;
 import org.search.codesearch.main.args.ArgsParser;
 import org.search.codesearch.server.HttpRequestHandler;
+import org.search.codesearch.server.handler.CodeSearchProcessor;
 
 import java.util.Map;
 

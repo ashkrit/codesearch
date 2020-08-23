@@ -26,6 +26,7 @@ public class HttpRequestHandler extends AbstractHandler {
     public void handle(String contextPath, Request jettyRequest, HttpServletRequest request, HttpServletResponse response) {
 
         logger.info("Processing {}?{}", contextPath, request.getQueryString());
+        long start = System.currentTimeMillis();
         RequestProcessor processor = contextToRequest.get(contextPath);
         if (processor == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -33,6 +34,9 @@ public class HttpRequestHandler extends AbstractHandler {
         }
         RequestContext context = new RequestContext(request, response, processor, jettyRequest);
         pipelineBuilder.pipeline().apply(context);
+        long total = System.currentTimeMillis() - start;
+
+        logger.info("Request {} took {} ms", contextPath, total);
 
     }
 }

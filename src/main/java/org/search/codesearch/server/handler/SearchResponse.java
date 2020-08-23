@@ -1,4 +1,4 @@
-package org.search.codesearch.handler.codesearch;
+package org.search.codesearch.server.handler;
 
 import java.util.List;
 

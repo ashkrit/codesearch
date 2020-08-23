@@ -11,7 +11,7 @@ Library for building code search
 # How to run
 This project ships shell a based client to explore code. It can be launched using below command.
 
-java org.search.codesearch.main.App -source code1path;code2path
+java org.search.codesearch.main.CodeSearchCLI -source code1path;code2path
 
 eg 
-java org.search.codesearch.main.App -source ..\github\jdk;..\github\h2database
+java org.search.codesearch.main.CodeSearchCLI -source ..\github\jdk;..\github\h2database

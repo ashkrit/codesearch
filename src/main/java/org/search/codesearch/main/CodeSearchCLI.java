@@ -17,9 +17,9 @@ import static org.search.codesearch.matcher.MatchType.BoyerMoor;
 import static org.search.codesearch.matcher.MatchType.StringContains;
 
 
-public class App {
+public class CodeSearchCLI {
 
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
+    private static final Logger logger = LoggerFactory.getLogger(CodeSearchCLI.class);
 
     private static Map<String, Function<List<String>, Search>> searchAlgo = new HashMap<String, Function<List<String>, Search>>() {{
         put("naive", paths -> new BruteForceCodeSearch(paths));

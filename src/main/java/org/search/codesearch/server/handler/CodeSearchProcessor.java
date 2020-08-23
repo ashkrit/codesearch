@@ -1,11 +1,11 @@
-package org.search.codesearch.handler.codesearch;
+package org.search.codesearch.server.handler;
 
-import org.search.codesearch.handler.codesearch.SearchResponse.MatchedRecord;
 import org.search.codesearch.index.Search;
 import org.search.codesearch.index.SearchQuery;
 import org.search.codesearch.index.cache.CacheFileTreeCodeSearch;
 import org.search.codesearch.matcher.InMemoryFileContentMatcher;
 import org.search.codesearch.server.RequestProcessor;
+import org.search.codesearch.server.handler.SearchResponse.MatchedRecord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
