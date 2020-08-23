@@ -27,6 +27,10 @@ public class HttpRequestHandler extends AbstractHandler {
 
         logger.info("Processing {}?{}", contextPath, request.getQueryString());
         RequestProcessor processor = contextToRequest.get(contextPath);
+        if (processor == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         RequestContext context = new RequestContext(request, response, processor, jettyRequest);
         pipelineBuilder.pipeline().apply(context);
 
